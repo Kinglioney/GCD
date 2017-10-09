@@ -30,9 +30,11 @@
     
   //  [self serialQueueAsync];
     
-       [self concurrentQueueAsync];
+   //    [self concurrentQueueAsync];
     
    // [self concurrentQueueSync];
+    
+    [self globalQueue];
 }
 
 //MARk: - GCD常见代码
@@ -177,4 +179,41 @@
     
     NSLog(@"COME HERE");//在主线程上面
 }
+
+//全局队列
+//MARK: - 全局队列（本质上是一个并发队列）
+- (void)globalQueue {
+    
+    /**
+     全局队列
+     第一个参数：涉及到系统适配
+     iOS8.0 服务质量
+     QOS_CLASS_USER_INTERACTIVE  用户交互（希望线程快速执行）
+     QOS_CLASS_USER_INITIATED    用户需要的（不要放一些耗时操作）
+     QOS_CLASS_DEFAULT           默认
+     QOS_CLASS_UTILITY           使用工具（用来耗时操作）
+     QOS_CLASS_BACKGROUND        后台
+     QOS_CLASS_UNSPECIFIED       没有指定优先级
+     
+     iOS7.0 调度优先级
+     DISPATCH_QUEUE_PRIORITY_HIGH           高优先级
+     DISPATCH_QUEUE_PRIORITY_DEFAULT        默认优先级
+     DISPATCH_QUEUE_PRIORITY_LOW            低优先级
+     DISPATCH_QUEUE_PRIORITY_BACKGROUND     后台优先级
+     
+     第一个参数写0代表默认
+     第二个参数是为未来的保留参数
+     提示：尤其不要选择BACKGROUND，线程执行会很慢
+     */
+    
+    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+    for (int i = 0; i < 10; i++) {
+        dispatch_async(queue, ^{
+            NSLog(@"%@-------%d", [NSThread currentThread], i);
+        });
+    }
+    NSLog(@"COME HERE");
+}
+
+
 @end
